@@ -2,26 +2,172 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HTML Video Player</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Custom Video Player</title>
+<style>
+	
+	*{
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	body{
+		background: #333;
+		color: #fff;
+		font-family: Arial, sans-serif;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100vh;
+	}
+
+	.player{
+		max-width: 750px;
+		width: 90%;
+		overflow: hidden;
+		background: #222;
+		border: 2px solid #444;
+		border-radius: 8px;
+		box-shadow:  0 0 20px rgba(0,0,0,0.5);
+	}
+
+	.viewer{
+		width: 100%;
+		max-height: 400px;
+		background: black;
+		display: block;
+	}
+
+	.player__controls{
+		display: flex;
+		flex-wrap: wrap;
+		background: rgba(0,0,0,0.7);
+		padding: 10px;
+		align-items: center;
+	}
+
+	.progress{
+		flex: 10;
+		position: relative;
+		display: flex;
+		height: 10px;
+		background: #555;
+		cursor: pointer;
+		margin-bottom: 10px;
+		width: 100%;
+	}
+
+	.progress__filled{
+		width: 0;
+		background: #f00;
+		flex: 0;
+		height: 100%;
+		transition: width 0.1s;
+	}
+
+	.player__button {
+		background: none;
+		border: 0;
+		color: white;
+		outline: none;
+		cursor: pointer;
+		font-size: 20px;
+		padding: 5px 10px;
+		margin: 5px;
+	}
+
+	input[type="range"] {
+		width: 100px;
+		margin : 5px;
+	}
+
+	.error-message {
+		color: red;
+		font-size: 14px;
+		margin-top: 10px;
+		display: none;
+	}
+</style>
 </head>
+	
 <body>
 
    <div class="player">
-     <video class="player__video viewer" src="download.mp4"></video>
+     <video class="viewer" src="download.mp4"></video>
 
      <div class="player__controls">
        <div class="progress">
         <div class="progress__filled"></div>
        </div>
-       <button class="player__button toggle" title="Toggle Play">►</button>
-       <input type="range" name="volume" class="player__slider" min="0" max="1" step="0.05" value="1">
-       <input type="range" name="playbackRate" class="player__slider" min="0.5" max="2" step="0.1" value="1">
+
+       <button class="player__button toggle">►</button>
+		 
+       <input type="range" name="volume" min="0" max="1" step="0.05" value="1">
+       <input type="range" name="playbackRate" min="0.5" max="2" step="0.1" value="1">
+		 
        <button data-skip="-10" class="player__button">« 10s</button>
        <button data-skip="25" class="player__button">25s »</button>
+		 
+	   <div class="error-message"></div>
      </div>
    </div>
 
-  <script src="./scripts.js"></script>
-</body>
-</html>
+  <script>
+
+	  const video = document.querySelector('.viewer');
+	  const toggleButton = document.querySelector('.toggle');
+	  const progress = document.querySelector('.progress');
+	  const progressBar = document.querySelector('.progress__filled');
+	  const volumeSlider = document.querySelector('input[name="volume"]');
+	  const playbackRateSlider = document.querySelector('input[name="playbackRate"]');
+	  const skipButtons = document.querySelector('[data-skip]');
+	  const errorMessage = document.querySelector('.error-message');
+
+	  // Functions
+	  function togglePlay() {
+	  	if (video.paused) {
+	  		video.play();
+	  	} else {
+			video.pause();
+		}
+	  }
+
+	  function updateButton() {
+	  	const icon = video.paused ? '►' : '| |';
+		toggleButton.textContent = icon;
+	  }
+
+	  function handleProgress() {
+	  	const percent = (video.currentTime / video.duration) * 100;
+		  progressBar.style.flexBasis = `${percent}%`;
+	  }
+
+	  function scrub() {
+	  	const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
+		video.currentTime = scrubTime;
+	  }
+
+	  function handleVolume() {
+	  	video.volume = volumeSlider.value;
+	  }
+
+	  function handlePlaybackRate() {
+	  	video.playbackRate = playbackRateSlider.value;
+	  }
+
+	  function skip() {
+	  	video.currentTime += parseFloat(this.dataset.skip);
+	  }
+
+	  function handleError() {
+	  	if (errorMessage) {
+			errorMessage.textContent = "Falied to load the video. Please try again later.";
+			errorMessage.style.display = 'block';
+	  	}
+	  }
+
+	  // Event Listeners
+	  video.addEventListener('click', togglePlay);
+	  video.addEventListener('click', updateButton);
+	  video.addEventListener('click', updateButton);
+	  video.ad
